@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React!</title>
+    <script src="https://unpkg.com/react@15.3.2/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom@15.3.2/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
+    <style>
+.timer {
+  font: bold 1000% monospace;
+  display: inline-block;
+  vertical-align: middle;
+}
+.timer_console {
+  font: bold 200% monospace;
+  display: inline-block;
+  vertical-align: middle;
+}
+.timer_console button {
+  width: 2em
+}
+    </style>
+  </head>
+  <body>
+    <div id="example"></div>
+
+    <script type="text/babel">
+      var TimerBox = React.createClass({
+        render: function() {
+          return (
+            <div>
+              <div className="timer">25:00</div>
+              <div className="timer_console">
+                <button>▶</button><br />
+                <button>| |</button><br />
+                <button>■</button>
+              </div>
+            </div>
+          )
+        }
+      })
+      ReactDOM.render(
+        <div>
+          <TimerBox />
+          <TimerBox />
+        </div>,
+        document.getElementById('example')
+      );
+    </script>
+  </body>
+</html>
