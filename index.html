@@ -26,8 +26,10 @@
     <div id="example"></div>
 
     <script type="text/babel">
+      var times = ["5:00"]
+
       var TimerBox = React.createClass({
-        render: function() {
+        render() {
           return (
             <div>
               <div className="timer">25:00</div>
@@ -39,12 +41,35 @@
             </div>
           )
         }
+      });
+      var times = ["5:00"]
+
+      var TimerQueue = React.createClass({
+        render() {
+          return (
+            <div>
+              <ul>
+                <li>{this.props.times}</li>
+                <li><input type="text" ref="newTime" pattern="\d+:\d{2}"/></li>
+              </ul>
+            </div>
+          )
+        },
+        add() {
+          var newTime = this.refs.newTime.getDOMNode().value;
+          this.props.times.add(newTime)
+        }
+      });
+      var TimerApp = React.createClass({
+        render: function() {
+          return <div>
+            <TimerBox />
+            <TimerQueue />
+          </div>
+        }
       })
       ReactDOM.render(
-        <div>
-          <TimerBox />
-          <TimerBox />
-        </div>,
+        <TimerApp />,
         document.getElementById('example')
       );
     </script>
