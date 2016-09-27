@@ -59,15 +59,22 @@
                   this.state.times.map((time) => <li>{time}</li>)
                 }
                 <li>
-                  <input type="text" ref="newTime" pattern="\d+:\d{2}" />
+                  <input type="text" ref="newTime" pattern="\d+:\d{2}" 
+                   onKeyDown={this.keyDown} />
                 </li>
               </ul>
             </div>
           )
         },
-        add() {
-          var newTime = this.refs.newTime.getDOMNode().value;
-          this.props.times.add(newTime)
+        keyDown(event) {
+          if (event.keyCode == 13) { // Enter
+            this.add(event.target.value)
+          }
+        },
+        add(newTime) {
+          this.setState({
+            times:this.state.times.concat(newTime)
+          })
         }
       });
       var TimerApp = React.createClass({
