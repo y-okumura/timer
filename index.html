@@ -42,15 +42,25 @@
           )
         }
       });
+
       var times = ["5:00"]
 
       var TimerQueue = React.createClass({
+        getInitialState() {
+          return {
+            times: ["5:00", "25:00"]
+          };
+        },
         render() {
           return (
             <div>
               <ul>
-                <li>{this.props.times}</li>
-                <li><input type="text" ref="newTime" pattern="\d+:\d{2}"/></li>
+                {
+                  this.state.times.map((time) => <li>{time}</li>)
+                }
+                <li>
+                  <input type="text" ref="newTime" pattern="\d+:\d{2}" />
+                </li>
               </ul>
             </div>
           )
