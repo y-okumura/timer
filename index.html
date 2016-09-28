@@ -36,17 +36,36 @@
 
     <script type="text/babel">
       class Time {
+        
         constructor(str) {
-          [this.min, this.sec] = str.split(':').map( (s) => Number(s) )
-          if (!this.sec) {
-            this.sec = 0
-          }
+          var min, sec
+          [this.message, min, sec] = str.split(':').map( (s) => Number(s) )
+          min = min ? min : 0
+          sec = sec ? sec : 0
+          this.secs = min * 60 + sec
         }
+
+        get min() {
+          return Math.floor(this.secs / 60)
+        }
+
+        get sec() {
+          return this.secs % 60
+        }
+
+        tick() {
+            -- this.secs
+        }
+
+        isEnd() {
+          return this.secs <= 0
+        }
+
         toString() {
-          return this.min + ":" + (this.sec && this.sec >= 10 ? this.sec : '0' + this.sec)
+          return this.message + this.min + ":" + (this.sec && this.sec >= 10 ? this.sec : '0' + this.sec)
         }
       }
-
+      var intervalId
       var TimerBox = React.createClass({
         getInitialState() {
           return {
@@ -57,18 +76,18 @@
           return (
             <div>
               <div className="timer_display">
-                <button onClick={this.remove} value="0" >×</button>
+                <button onClick={this.clickRemove} value="0" >×</button>
                 {this.state.times.length ? this.state.times[0].toString() : ''}
               </div>
               <div className="timer_console">
-                <button>▶</button><br />
-                <button>| |</button><br />
+                <button onClick={this.start} >▶</button><br />
+                <button onClick={this.stop} >■</button><br />
               </div>
               <ul>
                 {
                   this.state.times.slice(1).map((time, i) =>
                     <li key={i}>
-                      <button onClick={this.remove} value={i+1}>×</button>
+                      <button onClick={this.clickRemove} value={i+1}>×</button>
                       <span className="timer_list_item">{time.toString()}</span>
                     </li>
                   )
@@ -86,17 +105,53 @@
             this.add(event.target.value)
           }
         },
+        clickRemove(event) {
+          this.remove(Number(event.target.value))
+        },
         add(str) {
           this.setState({
             times: this.state.times.concat(new Time(str))
           })
         },
-        remove(event) {
-          var index = Number(event.target.value)
+        remove(index) {
           var times = this.state.times
+          times = times.slice(0, index).concat(times.slice(1+index))
+
+          if (times.length == 0) {
+            this.stop()
+          }
+
           this.setState({
-            times: times.slice(0, index).concat(times.slice(1+index))
+            times: times
           })
+        },
+        start() {
+          if (intervalId) return;
+
+          var timer = this
+
+          intervalId = setInterval(
+            ()=>{
+              var times = timer.state.times
+
+              times[0].tick()
+              if (times[0].isEnd()) {
+                timer.remove(0)
+              } else {
+                timer.setState({
+                  times: times
+                })
+              }
+              
+            },
+            1000
+          )
+        },
+        stop() {
+          if (! intervalId) return;
+
+          clearInterval(intervalId);
+          intervalId = false
         }
       });
 
