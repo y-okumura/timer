@@ -149,7 +149,7 @@
           })
 
           if (index == 0) {
-            this.speak()
+            this.speak(times[0])
           }
 
           if (times.length == 0) {
@@ -157,7 +157,7 @@
           }
         },
         start() {
-          this.speak();
+          this.speak(this.state.times);
           var timer = this
 
           if (intervalId) return;
@@ -179,17 +179,12 @@
             1000
           )
         },
-        speak() {
-          if (this.state.times.length == 0) {
-            speechSynthesis.speak(
-                new SpeechSynthesisUtterance("終了")
-            );
-          } else {
-            var time = this.state.times[0]
-            speechSynthesis.speak(
-                new SpeechSynthesisUtterance(time.message + "、" + (time.min ? time.min + '分' : '') + (time.sec ? time.sec + "秒間" : '間'))
-            );
-          }
+        speak(time) {
+          speechSynthesis.speak(new SpeechSynthesisUtterance(
+            time ? time.message + "、" + (time.min ? time.min + '分' : '') + (time.sec ? time.sec + "秒間" : '間')
+                 : "終了"
+          ));
+          
         },
         stop() {
           if (! intervalId) return;
