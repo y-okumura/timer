@@ -8,17 +8,26 @@
     <script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
     <style>
 .timer {
-  font: bold 1000% monospace;
+  font: bold 300% monospace;
   display: inline-block;
-  vertical-align: middle;
+}
+.timer_display {
+  width: 4em;
+  font: bold 300% monospace;
+  display: inline-block;
 }
 .timer_console {
-  font: bold 200% monospace;
   display: inline-block;
-  vertical-align: middle;
 }
-.timer_console button {
-  width: 2em
+.timer button {
+  width: 2em;
+  height: 2em;
+  vertical-align: super;
+}
+.timer_list_item {
+  display: inline-block;
+  width: 3em;
+  text-align: right;
 }
     </style>
   </head>
@@ -26,40 +35,44 @@
     <div id="example"></div>
 
     <script type="text/babel">
-      var times = ["5:00"]
+      class Time {
+        constructor(str) {
+          [this.min, this.sec] = str.split(':').map( (s) => Number(s) )
+          if (!this.sec) {
+            this.sec = 0
+          }
+        }
+        toString() {
+          return this.min + ":" + (this.sec && this.sec >= 10 ? this.sec : '0' + this.sec)
+        }
+      }
 
       var TimerBox = React.createClass({
-        render() {
-          return (
-            <div>
-              <div className="timer">25:00</div>
-              <div className="timer_console">
-                <button>▶</button><br />
-                <button>| |</button><br />
-                <button>■</button>
-              </div>
-            </div>
-          )
-        }
-      });
-
-      var times = ["5:00"]
-
-      var TimerQueue = React.createClass({
         getInitialState() {
           return {
-            times: ["5:00", "25:00"]
+            times: []
           };
         },
         render() {
           return (
             <div>
+              <div className="timer_display">{this.state.times.length ? this.state.times[0].toString() : ''}</div>
+              <div className="timer_console">
+                <button>▶</button><br />
+                <button>| |</button><br />
+                <button>■</button>
+              </div>
               <ul>
                 {
-                  this.state.times.map((time) => <li>{time}</li>)
+                  this.state.times.slice(1).map((time) =>
+                    <li>
+                      <button>×</button>
+                      <span className="timer_list_item">{time.toString()}</span>
+                    </li>
+                  )
                 }
                 <li>
-                  <input type="text" ref="newTime" pattern="\d+:\d{2}" 
+                  <input type="text" ref="newTime" pattern="\d+:\d{2}"
                    onKeyDown={this.keyDown} />
                 </li>
               </ul>
@@ -71,20 +84,25 @@
             this.add(event.target.value)
           }
         },
-        add(newTime) {
+        add(str) {
           this.setState({
-            times:this.state.times.concat(newTime)
+            times: this.state.times.concat(new Time(str))
           })
         }
       });
+      var times = [
+        {min: 25, sec: 0},
+        {min: 5, sec: 0}
+      ]
+
       var TimerApp = React.createClass({
         render: function() {
-          return <div>
-            <TimerBox />
-            <TimerQueue />
+          return <div className="timer">
+            <TimerBox times={times} />
           </div>
         }
       })
+
       ReactDOM.render(
         <TimerApp />,
         document.getElementById('example')
