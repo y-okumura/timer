@@ -9,20 +9,20 @@
     <style>
 .timer {
   font: bold 300% monospace;
-  display: inline-block;
+  border: solid silver 1px;
+  border-collapse: collapse;
 }
-.timer_display {
-  width: 4em;
-  font: bold 300% monospace;
-  display: inline-block;
+.timer th {
+  background-color: gray;
+  color: white;
+  padding: 5px;
 }
-.timer_console {
-  display: inline-block;
+.timer td {
+  border: solid silver 1px;
 }
 .timer button {
   width: 2em;
   height: 2em;
-  vertical-align: super;
 }
 .timer_list_item {
   display: inline-block;
@@ -38,11 +38,19 @@
       class Time {
         
         constructor(str) {
+          var message, time
+          [message, time] = str.split(',')
+
           var min, sec
-          [this.message, min, sec] = str.split(':').map( (s) => Number(s) )
+          [min, sec] = time.split(':').map( (s) => Number(s) )
+          
           min = min ? min : 0
           sec = sec ? sec : 0
+
+          this.message = message
           this.secs = min * 60 + sec
+
+          console.log(min, sec, this.secs)
         }
 
         get min() {
@@ -61,8 +69,8 @@
           return this.secs <= 0
         }
 
-        toString() {
-          return this.message + this.min + ":" + (this.sec && this.sec >= 10 ? this.sec : '0' + this.sec)
+        get time() {
+          return this.min + ":" + (this.sec && this.sec >= 10 ? this.sec : '0' + this.sec)
         }
       }
       var intervalId
@@ -74,30 +82,49 @@
         },
         render() {
           return (
-            <div>
-              <div className="timer_display">
-                <button onClick={this.clickRemove} value="0" >×</button>
-                {this.state.times.length ? this.state.times[0].toString() : ''}
-              </div>
-              <div className="timer_console">
-                <button onClick={this.start} >▶</button><br />
-                <button onClick={this.stop} >■</button><br />
-              </div>
-              <ul>
+            <table className="timer">
+              <thead>
+                <tr>
+                  <th>メッセージ</th>
+                  <th>時間</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="timer_display">
+                  <td>
+                    <button onClick={this.clickRemove} value="0" >×</button>
+                    {this.state.times.length ? this.state.times[0].message : ''}
+                  </td>
+                  <td>
+                    {this.state.times.length ? this.state.times[0].time : ''}
+                  </td>
+                  <td>
+                    <button onClick={this.start} >▶</button><br />
+                    <button onClick={this.stop} >■</button><br />
+                  </td>
+                </tr>
                 {
                   this.state.times.slice(1).map((time, i) =>
-                    <li key={i}>
-                      <button onClick={this.clickRemove} value={i+1}>×</button>
-                      <span className="timer_list_item">{time.toString()}</span>
-                    </li>
+                    <tr key={i}>
+                      <td>
+                        <button onClick={this.clickRemove} value={i+1}>×</button>
+                        {time.message}
+                      </td>
+                      <td>
+                        <span className="timer_list_item">{time.time}</span>
+                      </td>
+                    </tr>
                   )
                 }
-                <li>
-                  <input type="text" ref="newTime" pattern="\d+:\d{2}"
-                   onKeyDown={this.keyDown} />
-                </li>
-              </ul>
-            </div>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="2">
+                    <input type="text" ref="newTime" pattern="\d+:\d{2}" onKeyDown={this.keyDown} />
+                   </td>
+                </tr>
+              </tfoot>
+            </table>
           )
         },
         keyDown(event) {
@@ -136,6 +163,9 @@
 
               times[0].tick()
               if (times[0].isEnd()) {
+                speechSynthesis.speak(
+                  new SpeechSynthesisUtterance(times[0].message)
+                );
                 timer.remove(0)
               } else {
                 timer.setState({
@@ -157,9 +187,7 @@
 
       var TimerApp = React.createClass({
         render: function() {
-          return <div className="timer">
-            <TimerBox />
-          </div>
+          return <TimerBox />
         }
       })
 
