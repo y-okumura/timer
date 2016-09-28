@@ -144,13 +144,17 @@
           var times = this.state.times
           times = times.slice(0, index).concat(times.slice(1+index))
 
-          if (times.length == 0) {
-            this.stop()
-          }
-
           this.setState({
             times: times
           })
+
+          if (index == 0) {
+            speak()
+          }
+
+          if (times.length == 0) {
+            this.stop()
+          }
         },
         start() {
           this.speak();
@@ -165,7 +169,6 @@
               times[0].tick()
               if (times[0].isEnd()) {
                 timer.remove(0)
-                this.speak();
               } else {
                 timer.setState({
                   times: times
