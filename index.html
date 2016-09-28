@@ -21,11 +21,12 @@
   border: solid silver 1px;
 }
 .timer button {
-  width: 2em;
-  height: 2em;
+  mrgin: 5px;
+}
+.timer textarea {
+  width: 100%;
 }
 .timer_list_item {
-  display: inline-block;
   width: 3em;
   text-align: right;
 }
@@ -95,7 +96,7 @@
                     <button onClick={this.clickRemove} value="0" >×</button>
                     {this.state.times.length ? this.state.times[0].message : ''}
                   </td>
-                  <td>
+                  <td className="timer_list_item">
                     {this.state.times.length ? this.state.times[0].time : ''}
                   </td>
                   <td>
@@ -110,9 +111,7 @@
                         <button onClick={this.clickRemove} value={i+1}>×</button>
                         {time.message}
                       </td>
-                      <td>
-                        <span className="timer_list_item">{time.time}</span>
-                      </td>
+                      <td className="timer_list_item">{time.time}</td>
                     </tr>
                   )
                 }
@@ -120,24 +119,25 @@
               <tfoot>
                 <tr>
                   <td colSpan="2">
-                    <input type="text" ref="newTime" pattern="\d+:\d{2}" onKeyDown={this.keyDown} />
+                    <textarea ref="newTime" rows="5" defaultValue="作業, 25" />
+                   </td>
+                   <td>
+                     <button onClick={this.clickAdd} >追加</button>
                    </td>
                 </tr>
               </tfoot>
             </table>
           )
         },
-        keyDown(event) {
-          if (event.keyCode == 13) { // Enter
-            this.add(event.target.value)
-          }
+        clickAdd() {
+          this.add(this.refs.newTime.value)
         },
         clickRemove(event) {
           this.remove(Number(event.target.value))
         },
         add(str) {
           this.setState({
-            times: this.state.times.concat(new Time(str))
+            times: this.state.times.concat(str.split('\n').map((l)=>new Time(l)))
           })
         },
         remove(index) {
@@ -153,20 +153,19 @@
           })
         },
         start() {
-          if (intervalId) return;
-
+          this.speak();
           var timer = this
 
+          if (intervalId) return;
+          
           intervalId = setInterval(
             ()=>{
               var times = timer.state.times
 
               times[0].tick()
               if (times[0].isEnd()) {
-                speechSynthesis.speak(
-                  new SpeechSynthesisUtterance(times[0].message)
-                );
                 timer.remove(0)
+                this.speak();
               } else {
                 timer.setState({
                   times: times
@@ -176,6 +175,18 @@
             },
             1000
           )
+        },
+        speak() {
+          if (this.state.times.length == 0) {
+            speechSynthesis.speak(
+                new SpeechSynthesisUtterance("終了")
+            );
+          } else {
+            var time = this.state.times[0]
+            speechSynthesis.speak(
+                new SpeechSynthesisUtterance(time.message + "、" + (time.min ? time.min + '分' : '') + (time.sec ? time.sec + "秒間" : '間'))
+            );
+          }
         },
         stop() {
           if (! intervalId) return;
