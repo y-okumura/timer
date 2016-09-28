@@ -56,17 +56,19 @@
         render() {
           return (
             <div>
-              <div className="timer_display">{this.state.times.length ? this.state.times[0].toString() : ''}</div>
+              <div className="timer_display">
+                <button onClick={this.remove} value="0" >×</button>
+                {this.state.times.length ? this.state.times[0].toString() : ''}
+              </div>
               <div className="timer_console">
                 <button>▶</button><br />
                 <button>| |</button><br />
-                <button>■</button>
               </div>
               <ul>
                 {
-                  this.state.times.slice(1).map((time) =>
-                    <li>
-                      <button>×</button>
+                  this.state.times.slice(1).map((time, i) =>
+                    <li key={i}>
+                      <button onClick={this.remove} value={i+1}>×</button>
                       <span className="timer_list_item">{time.toString()}</span>
                     </li>
                   )
@@ -88,17 +90,20 @@
           this.setState({
             times: this.state.times.concat(new Time(str))
           })
+        },
+        remove(event) {
+          var index = Number(event.target.value)
+          var times = this.state.times
+          this.setState({
+            times: times.slice(0, index).concat(times.slice(1+index))
+          })
         }
       });
-      var times = [
-        {min: 25, sec: 0},
-        {min: 5, sec: 0}
-      ]
 
       var TimerApp = React.createClass({
         render: function() {
           return <div className="timer">
-            <TimerBox times={times} />
+            <TimerBox />
           </div>
         }
       })
